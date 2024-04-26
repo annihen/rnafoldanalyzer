@@ -11,6 +11,7 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_rnafoldanalyzer_pipeline'
 
+include { CLUSTALO_ALIGN         } from '../modules/nf-core/clustalo/align/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -35,6 +36,11 @@ workflow RNAFOLDANALYZER {
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
+    // MODULE: Run Clustal Omega align
+    //
+    CLUSTALO_ALIGN ( <fasta>, <tree>, true )
 
     //
     // Collate and save software versions
