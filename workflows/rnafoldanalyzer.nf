@@ -11,6 +11,7 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_rnafoldanalyzer_pipeline'
 
+include { GUNZIP                 } from '../modules/nf-core/gunzip/main'
 include { CLUSTALO_ALIGN         } from '../modules/nf-core/clustalo/align/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,19 +29,19 @@ workflow RNAFOLDANALYZER {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+    ch_samplesheet.view()
+
     //
-    // MODULE: Run FastQC
+    // MODULE: Gunzip FASTA files for input into Clustal Omega
     //
-    FASTQC (
-        ch_samplesheet
-    )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    ch_fasta = GUNZIP ( ch_samplesheet ).gunzip
+    ch_versions = ch_versions.mix ( GUNZIP.out.versions )
 
     //
     // MODULE: Run Clustal Omega align
     //
-    CLUSTALO_ALIGN ( <fasta>, <tree>, true )
+    CLUSTALO_ALIGN ( ch_fasta, [[:],[]], true )
+    ch_versions = ch_versions.mix( CLUSTALO_ALIGN.out.versions )
 
     //
     // Collate and save software versions
