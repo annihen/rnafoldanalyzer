@@ -16,6 +16,7 @@ include { GUNZIP                 } from '../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_MSA   } from '../modules/nf-core/gunzip/main'
 include { CLUSTALO_ALIGN         } from '../modules/nf-core/clustalo/align/main'
 include { FASTTREE               } from '../modules/nf-core/fasttree/main'
+include { SEQKIT_SLIDING         } from '../modules/nf-core/seqkit/sliding/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -57,6 +58,20 @@ workflow RNAFOLDANALYZER {
     ch_versions = ch_versions.mix( CLUSTALO_ALIGN.out.versions )
     ch_msa_gz.view()
 
+    //
+    // MODULE: Extract sliding window from MSA
+    //
+    ch_window_fasta_gz = SEQKIT_SLIDING ( ch_msa_gz ).fastx
+    ch_versions = ch_versions.mix( SEQKIT_SLIDING.out.versions )
+    // TODO: Look into why file is output as fastq
+
+    //
+    // MODULE: Remove gaps & filter by length (seqkit_seq)
+    //
+    // 1. nf-core modules install seqkit/seq
+    // 2. Paste include line at the top
+    // 3. Add module here with ch_window_fasta_gz as input
+    // 4. add extra.args in conf/modules.config (https://bioinf.shenwei.me/seqkit/usage/#seq)
 
     //
     // MODULE: Gunzip FASTA files for input into Fasttree

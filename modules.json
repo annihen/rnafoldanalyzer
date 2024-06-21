@@ -34,6 +34,11 @@
                         "branch": "master",
                         "git_sha": "b7ebe95761cd389603f9cc0e0dc384c0f663815a",
                         "installed_by": ["modules"]
+                    },
+                    "seqkit/sliding": {
+                        "branch": "master",
+                        "git_sha": "2be41ca2cc780eca4293d1b0dd3850b0b7ac40a3",
+                        "installed_by": ["modules"]
                     }
                 }
             },
